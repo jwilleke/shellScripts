@@ -3,7 +3,7 @@
 # SCRIPT: jmacMoveIPhotos.sh
 # AUTHOR: jim@willeke.com
 # DATE:   2022-09-10-13:13:21
-T_VER=1.1A								# Script Version Number
+T_VER=2022-09-10-13:57:33								# Script Version Number
 # REV:    1.1.A (Valid are A, B, D, T, Q, and P)
 #               (For Alpha, Beta, Dev, Test, QA, and Production)
 #
