@@ -166,10 +166,10 @@ f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: $0 $APPNAME Script Name: $THIS_SCR
 f_write_and_log "$SINGLEBAR"
 # Create the logfile if it is not there
 f_createfolder "$LOGDIR"
-f_pressanykey "Debuging"
 # Displays photos readdy to copy
 find -E "$iphoto_source" -iregex ".*\.(jpg|gif|png|jpeg)"
 # Copy from iphoto_source location to from_iphoto_dest
+f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: Copy from $iphoto_source location to $from_iphoto_dest"
 find -E "$iphoto_source" -iregex ".*\.(jpg|gif|png|jpeg)" -exec cp '{}' "$from_iphoto_dest" \;
 # AFTER Uploding to Google Photos - Delete
 f_pressanykey "Press any Key: AFTER Uploding photos to a safe place."
