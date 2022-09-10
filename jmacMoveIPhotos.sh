@@ -49,7 +49,7 @@ W=`date +%V`						# Week Number e.g 37
 # Host name (or IP address) of application server e.g localhost
 APPHOST=`hostname`
 # Put the logs files here
-LOGDIR=/Library/Logs/${THIS_SCRIPT%.*}
+LOGDIR=/Users/jim/Documents/Library/Logs/${THIS_SCRIPT%.*}
 LOGFILENAME=${THIS_SCRIPT%.*}.log
 LOGFILE="$LOGDIR/`date +%Y-%m-%d`-$LOGFILENAME"
 # Following are specific to this script
@@ -60,6 +60,20 @@ from_iphoto_dest=/Users/jim/Downloads/scans/images/from-iphoto
 ##########################################################
 #              DEFINE FUNCTIONS HERE
 ##########################################################
+###############################################################################
+# Create folder (Directory) if it does not exist
+###############################################################################
+f_createfolder ()
+{
+	if [ -d "$1" ]
+	then
+     f_write_log "$1 Folder Exists"
+  else
+      f_cmd mkdir -p "$1"
+      f_write_log "$1 Folder Created"
+	fi
+}
+
 ######################################################################
 # Subroutine to Log to LOGFILE does not show to console
 ######################################################################
@@ -92,6 +106,18 @@ f_cmd ()
 {
 	f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'` $*"
 	cmdOutput=`eval $*`; f_write_and_log "$cmdOutput"
+}
+##########################################################################
+# Prompts user to continue You should supply an argument for user prompt
+##########################################################################
+f_pressanykey ()
+# arg $1 message
+{
+	i_MSG=$1
+	i_MSG=${i_MSG:="Press <Enter> Key to Continue"}
+	printf "\n $i_MSG "
+	read dummy
+	unset i_MSG
 }
 ###################################################################
 # Will send an email message to desired recipients
@@ -130,7 +156,6 @@ f_messagesend()
 	rm -f $i_msgfile
 	f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: END f_sendTestMessage\n"
 }
-
 ##########################################################
 #               BEGINNING OF MAIN
 ##########################################################
@@ -139,23 +164,31 @@ f_write_and_log "$APPHOST  $THIS_SCRIPT - see - $LOGFILE"
 f_write_and_log "$DOUBLEBAR"
 f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: $0 $APPNAME Script Name: $THIS_SCRIPT Script Version $T_VER Started by $USER"
 f_write_and_log "$SINGLEBAR"
-currentfolder="/var/log/www"
-f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: Removing file in $currentfolder that are older than $OLDERTHAN days"
-
+# Create the logfile if it is not there
+f_createfolder "$LOGDIR"
+f_pressanykey "Debuging"
 # Displays photos readdy to copy
 find -E "$iphoto_source" -iregex ".*\.(jpg|gif|png|jpeg)"
 # Copy from iphoto_source location to from_iphoto_dest
 find -E "$iphoto_source" -iregex ".*\.(jpg|gif|png|jpeg)" -exec cp '{}' "$from_iphoto_dest" \;
+# AFTER Uploding to Google Photos - Delete
+f_pressanykey "Press any Key: AFTER Uploding photos to a safe place."
+f_write_and_log "Deleteing from $iphoto_source"
 # delete them from iphoto_source
 find -E "$iphoto_source" -iregex ".*\.(jpg|gif|png|jpeg)" -delete
-# AFTER Uploding to Google Photos - Delete 
-echo AFTER Uploding to a safe place. Press any keey to delete?
-read varname
-echo Deleteing from $from_iphoto_dest
+f_write_and_log "Deleteing from $from_iphoto_dest"
 find -E "$from_iphoto_dest" -iregex ".*\.(jpg|gif|png|jpeg)" -delete
-echo Finished
 ##########################################################
 #               CLEANUP
 ##########################################################
+# Clean up Logfile
+# rm -f $LOGFILE
+# We are using logrotate to deal with logfiles.
+# Set log file to STARTLOG if you changed the log file.
+f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: $0 $APPNAME Script Name: $THIS_SCRIPT wrote to $LOGFILE"
+f_write_and_log "`date '+%Y-%m-%d %H:%M:%S'`: $0 $APPNAME Script Name: $THIS_SCRIPT Script Version $T_VER EXITED by $USER"
+LOGFILE=$STARTLOG
+f_write_and_log "$DOUBLEBAR"
 unset T_VER
+exit 0
 # End of script
